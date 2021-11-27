@@ -1,37 +1,83 @@
-var userClickedPattern=[];
 var gamePattern=[];
+var userClickedPattern=[];
 var buttonsColor=["red","blue","green","yellow"];
 
-var randomNumber;
+
+var level=0;
+var gameStarted=false;
+
+$(document).keypress(function()
+{
+    if(!gameStarted)
+    {
+        $("#level-title").text("Level "+level);
+        nextSequence();
+        gameStarted=true;
+    } 
+})
+
 function nextSequence()
 {
-    randomNumber = Math.floor((Math.random()*4));
-    return randomNumber;
+    userClickedPattern=[]; 
+
+    level++;
+    $("#level-title").text("Level "+level);
+
+    var randomNumber = Math.floor((Math.random()*4));
+    var randomChosenColor= buttonsColor[randomNumber];
+    gamePattern.push(randomChosenColor);
+
+    $("#"+randomChosenColor).fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100);
+
+    playSound(randomChosenColor);
 }
 
-var randomChosenColor= buttonsColor[nextSequence()];
 
-gamePattern.push(randomChosenColor);
+$(".btn").on("click",function()
+    {
+        var user=$(this).attr("id");
+        userClickedPattern.push(user);
 
-var a=new Audio("green.mp3");
-a.play();
+        playSound(user);
+        animatePress(user);
 
-$("#"+randomChosenColor).fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100);
+        checkAnswer(userClickedPattern.length-1);
+    });
 
-function play()
+
+function playSound(name)
 {
-    var iconBlinked= new Audio("sounds/"+randomChosenColor+".mp3"); 
-    //iconBlinked.muted = true; // without this line it's not working although I have "muted" in HTML
+    var iconBlinked= new Audio("sounds/"+ name +".mp3"); 
     iconBlinked.play();
 }
-play();
-
-// function userClick()
-// {
-//     $(".btn").click(function()
-//     {
-//         $(".btn").;
-//     })
-// }
 
 
+function animatePress(currentColor)
+{
+   $("#"+currentColor).addClass("pressed");
+   setTimeout(function()
+   {
+    $("#"+currentColor).removeClass("pressed");
+   },100);
+}
+
+
+function checkAnswer(currentLevel)
+{
+    if(userClickedPattern[currentLevel]===gamePattern[currentLevel])
+    {
+        console.log("success");
+    }
+    if(userClickedPattern.length===gamePattern.length)
+    {
+        setTimeout(function()
+        {
+            nextSequence();     
+        },1000);
+    }
+    else 
+    {
+        console.log("wrong");
+    }
+
+}
